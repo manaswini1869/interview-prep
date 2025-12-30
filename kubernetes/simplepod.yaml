@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+    volumeMounts:
+      - name: hero
+        mountPath: /heroes
+    resources:
+      requests:
+        cpu: 250m
+        memory: "65M"
+      limits:
+        cpu: 500m
+        memory: "130M"
+  volumes:
+    - name: hero
+      configMap:
+        name: dem-heroes
