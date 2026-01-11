@@ -16,14 +16,29 @@ type Handler struct {
 
 func (h *Handler) CreateRoute(w http.ResponseWriter, r *http.Request) {
 	var route model.Route
-	json.NewDecoder(r.Body).Decode(&route)
+	err := json.NewDecoder(r.Body).Decode(&route)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	h.Store.Save(route)
+	modelRoute, ok := h.Store.Save(route)
+	if !ok {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(modelRoute)
 }
 
 func (h *Handler) GetRoute(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	route, ok := h.Store.Get(id)
 	if !ok {
@@ -31,10 +46,16 @@ func (h *Handler) GetRoute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(route)
 }
 
 // TODO: Implement
 func (h *Handler) GetConflicts(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	conflicts := h.Store.GetConflicts()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(conflicts)
 }

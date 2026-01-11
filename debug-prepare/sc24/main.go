@@ -34,7 +34,7 @@ func main() {
 
 	r.HandleFunc("/workers/{name}", server.GetWorkerHandler).Methods("GET")
 	r.HandleFunc("/workers/{name}/cpu", server.UpdateCPUHandler).Methods("PUT")
-	r.HandleFunc("/workers", server.CreateWorkerHandler).Methods("PUT")
+	r.HandleFunc("/workers", server.CreateWorkerHandler).Methods("POST")
 
 	log.Println("Server starting on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
